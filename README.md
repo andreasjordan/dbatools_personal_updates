@@ -5,7 +5,9 @@ Most of them are part of [open pull requests](https://github.com/sqlcollaborativ
 
 I run these commands to use the new versions:
 
-    Import-Module -Name dbatools
     $updatedCommands = 'Install-DbaFirstResponderKit', 'New-DbaAgentJob', 'New-DbaAgentSchedule', 'Set-DbaSpConfigure'
     $uriBase = 'https://raw.githubusercontent.com/andreasjordan/dbatools_personal_updates/master'
-    foreach ( $command in $updatedCommands ) { Invoke-Expression -Command (Invoke-WebRequest -Uri $uriBase/$command.ps1).Content }
+    $pathBase = Get-Module -Name dbatools -ListAvailable | Sort-Object -Property Version -Descending | Select-Object -First 1 -ExpandProperty ModuleBase
+    foreach ( $command in $updatedCommands ) { Set-Content -Path $pathBase\functions\$command.ps1 -Value (Invoke-WebRequest -Uri $uriBase/$command.ps1 -UseBasicParsing).Content }
+    $null = New-Item -ItemType Directory -Path $pathBase\.git -ErrorAction SilentlyContinue
+    Import-Module -Name dbatools
